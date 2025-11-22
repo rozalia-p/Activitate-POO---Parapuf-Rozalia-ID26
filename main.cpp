@@ -108,4 +108,71 @@ public:
 		this->frecventaGHz = frecventaGHzNou;
 	}
 
+	static int getTotalProcesoare() {
+		return totalProcesoare;
+	}
+
+	static float calculeazaScorPerformanta(int nrNuclee, float frecventaGHz) {
+		return nrNuclee * frecventaGHz * 100.0f;
+	}
+	friend float ::calculeazaIndicePerformanta(Procesor& p, RAM& r);
+};
+
+int Procesor::totalProcesoare = 0;
+
+
+
+class RAM
+{
+private:
+	string tip;
+	int capacitateGB;
+	int frecventaMHz;
+	const int latentaCL;
+	static int totalModuleRAM;
+	float* timpiAcces;
+	int nrTimpiAcces;
+
+public:
+	RAM() : latentaCL(0)
+	{
+		this->tip = "Necunoscut";
+		this->capacitateGB = 0;
+		this->frecventaMHz = 0;
+		this->nrTimpiAcces = 0;
+		this->timpiAcces = NULL;
+		totalModuleRAM++;
+	}
+
+	RAM(string tip) : latentaCL(0) {
+		this->tip = tip;
+		this->capacitateGB = 8;
+		this->frecventaMHz = 2666;
+		this->nrTimpiAcces = 0;
+		this->timpiAcces = NULL;
+		totalModuleRAM++;
+	}
+
+	RAM(string tip, int capacitateGB, int frecventaMHz, int latentaCL, int nrTimpiAcces, float* timpi) : latentaCL(latentaCL) {
+		this->tip = tip;
+		this->capacitateGB = capacitateGB;
+		this->frecventaMHz = frecventaMHz;
+		this->nrTimpiAcces = nrTimpiAcces;
+		if (this->nrTimpiAcces > 0 && timpi != NULL) {
+			this->timpiAcces = new float[this->nrTimpiAcces];
+			for (int i = 0; i < this->nrTimpiAcces; i++) {
+				this->timpiAcces[i] = timpi[i];
+			}
+		}
+		else
+		{
+			this->timpiAcces = NULL;
+		}
+		totalModuleRAM++;
+	}
+
+
+
+
+
 };
