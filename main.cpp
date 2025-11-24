@@ -24,6 +24,8 @@ private:
 	int nrTemperaturi;
 
 public:
+
+	//constructor implicit procesor
 	Procesor() :anLansare(0) {
 		this->model = "Necunoscut";
 		this->nrNuclee = 0;
@@ -32,7 +34,7 @@ public:
 		this->temperaturi = NULL;
 		totalProcesoare++;
 	}
-
+	//constructor cu un parametru procesor
 	Procesor(string model) :anLansare(0) {
 		this->model = model;
 		this->nrNuclee = 4;
@@ -40,6 +42,8 @@ public:
 		this->temperaturi = NULL;
 		totalProcesoare++;
 	}
+
+	//constructor cu toti parametrii procesor
 	Procesor(string model, int nrNuclee, float frecventaGHz, int anLansare, int nrTemperaturi, float* temperaturi) : anLansare(anLansare) {
 		this->model = model;
 		this->nrNuclee = nrNuclee;
@@ -56,8 +60,8 @@ public:
 		}
 		totalProcesoare++;
 	}
-
-	Procesor(Procesor& p) : anLansare(p.anLansare) {
+	//constructor de copiere procesor
+	Procesor(const Procesor& p) : anLansare(p.anLansare) {
 		this->model = p.model;
 		this->nrNuclee = p.nrNuclee;
 		this->frecventaGHz = p.frecventaGHz;
@@ -72,13 +76,13 @@ public:
 			this->temperaturi = NULL;
 		}totalProcesoare++;
 	}
-
+	//destructor procesor
 	~Procesor() {
 		if (this->temperaturi != NULL) {
 			delete[] this->temperaturi;
 		}
 	}
-	//getteri
+	//getteri procesor
 	string getModel() {
 		return this->model;
 	}
@@ -117,11 +121,11 @@ public:
 	}
 	friend float ::calculeazaIndicePerformanta(Procesor& p, RAM& r);
 };
-
+//atribut static
 int Procesor::totalProcesoare = 0;
 
 
-
+//clasa RAM
 class RAM
 {
 private:
@@ -134,6 +138,7 @@ private:
 	int nrTimpiAcces;
 
 public:
+	//constructor implicit RAM
 	RAM() : latentaCL(0)
 	{
 		this->tip = "Necunoscut";
@@ -143,7 +148,7 @@ public:
 		this->timpiAcces = NULL;
 		totalModuleRAM++;
 	}
-
+	//constructor cu un parametru RAM
 	RAM(string tip) : latentaCL(0) {
 		this->tip = tip;
 		this->capacitateGB = 8;
@@ -152,7 +157,7 @@ public:
 		this->timpiAcces = NULL;
 		totalModuleRAM++;
 	}
-
+	//constructor cu toti parametrii
 	RAM(string tip, int capacitateGB, int frecventaMHz, int latentaCL, int nrTimpiAcces, float* timpi) : latentaCL(latentaCL) {
 		this->tip = tip;
 		this->capacitateGB = capacitateGB;
@@ -171,7 +176,31 @@ public:
 		totalModuleRAM++;
 	}
 
-
+	//constructor de copiere
+	RAM(const RAM& r) : latentaCL(r.latentaCL) {
+		this->tip = r.tip;
+		this->capacitateGB = r.capacitateGB;
+		this->frecventaMHz = r.frecventaMHz;
+		
+		this->nrTimpiAcces = r.nrTimpiAcces;
+		if (this->nrTimpiAcces > 0 && r.timpiAcces != NULL) {
+			this->timpiAcces = new float[this->nrTimpiAcces];
+			for (int i = 0; i < this->nrTimpiAcces; i++) {
+				this->timpiAcces[i] = r.timpiAcces[i];
+			}
+		}
+		else
+		{
+			this->timpiAcces = NULL;
+		}
+		totalModuleRAM++;
+	}
+	//destructor
+	~RAM() {
+		if (this->timpiAcces != NULL) {
+			delete[] this->timpiAcces;
+		}
+	}
 
 
 
