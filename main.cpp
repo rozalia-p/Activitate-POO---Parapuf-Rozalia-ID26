@@ -202,6 +202,52 @@ public:
 		}
 	}
 
+	//getteri ram
+	string getTip() {
+		return this->tip;
+	}
+	int getCapacitateGB() {
+		return this->capacitateGB;
+	}
+	int getFrecventaMHz() {
+		return this->frecventaMHz;
+	}
+	int getLatentaCL() {
+		return this->latentaCL;
+	}
+	int getNrTimpiAcces() {
+		return this->nrTimpiAcces;
+	}
+	float* getTimpiAcces() {
+		return this->timpiAcces;
+	}
 
+	//setteri ram
+	void setTip(string tipNou) {
+		this->tip = tipNou;
+	}
+	void setCapacitateGB(int capacitateGBNou) {
+		this->capacitateGB = capacitateGBNou;
+	}
+	void setFrecventaMHz(int frecventaMHzNou) {
+		this->frecventaMHz = frecventaMHzNou;
+	}
+	void setTimpiAcces(int nrTimpiNou, float* timpiNou) {
+		if (this->timpiAcces != NULL) {
+			delete[] this->timpiAcces;
+		}
+		this->nrTimpiAcces = nrTimpiNou;
+		if (this->nrTimpiAcces > 0 && timpiNou != NULL) {
+			this->timpiAcces = new float[this->nrTimpiAcces];
 
+		}
+	}
+	static int calculeazaLatimeBandaAprox(int frecventaMHz, int latentaCL) {
+		if (latentaCL <= 0)
+			return 0;
+		return (frecventaMHz * 2) / latentaCL;
+	}
 };
+int RAM::totalModuleRAM = 0;
+
+
