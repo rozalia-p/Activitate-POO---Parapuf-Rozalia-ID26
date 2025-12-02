@@ -251,3 +251,35 @@ public:
 int RAM::totalModuleRAM = 0;
 
 
+//clasa Interfata
+class Interfata {
+private:
+	string tipInterfata; // PCIe, USB, SATA ...
+	int versiune;
+	const string producator;
+	static int totalInterfete;
+	char* descriere;
+public:
+	//constructor fara parametrii
+	Interfata() :producator("Necunoscut") {
+		this->tipInterfata = "PCIe";
+		this->versiune = 3;
+		const char* text = "Interfata implicita PCIe 3.0";
+		this->descriere = new char[strlen(text) + 1];
+		strcpy(this->descriere, text);
+
+		totalInterfete++;
+	}
+
+	//constructor cu un parametru
+	Interfata(string tipInterfata) : producator("Necunoscut") {
+		this->tipInterfata = tipInterfata;
+		this->versiune = versiune;
+		string text = "Interfata generica" + tipInterfata;
+		this->descriere = new char[text.length() + 1];
+		strcpy(this->descriere, text.c_str());
+
+		totalInterfete++;
+	}
+
+};
