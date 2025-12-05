@@ -299,5 +299,17 @@ public:
 		totalInterfete++;
 	}
 	//constructor de copiere interfata
-
+	Interfata(Interfata& i) : producator(i.producator) {
+		this->tipInterfata = i.tipInterfata;
+		this->versiune = i.versiune;
+		if (i.descriere != NULL) {
+			this->descriere = new char[strlen(i.descriere) + 1];
+			strcpy(this->descriere, i.descriere);
+		}
+		else {
+			this->descriere = NULL;
+		}
+		totalInterfete++;
+	}
+	
 };
