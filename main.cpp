@@ -282,4 +282,22 @@ public:
 		totalInterfete++;
 	}
 
+	//constructor cu toti parametrii interfata
+	Interfata(string tipInterfata, int versiune, string producator, const char* descriere) : producator(producator) {
+		this->tipInterfata = tipInterfata;
+		this->versiune = versiune;
+		if (descriere != NULL)
+		{
+			this->descriere = new char[strlen(descriere) + 1];
+			strcpy(this->descriere, descriere);
+		}
+		else {
+			const char* text = "Fara descriere";
+			this->descriere = new char[strlen(text) + 1];
+			strcpy(this->descriere, text);
+		}
+		totalInterfete++;
+	}
+	//constructor de copiere interfata
+
 };
