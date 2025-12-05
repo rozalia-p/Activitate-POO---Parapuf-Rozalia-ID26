@@ -247,6 +247,8 @@ public:
 			return 0;
 		return (frecventaMHz * 2) / latentaCL;
 	}
+	friend float ::calculeazaIndicePerformanta(Procesor& p, RAM& r);
+	friend bool ::esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i);
 };
 int RAM::totalModuleRAM = 0;
 
@@ -311,5 +313,71 @@ public:
 		}
 		totalInterfete++;
 	}
-	
+	//destructor interfata
+	~Interfata() {
+		if (this->descriere != NULL) {
+			delete[] this->descriere;
+		}
+	}
+
+	// getteri interfata
+
+	string getTipInterfata() {
+		return this->tipInterfata;
+	}
+
+	int getVersiune() {
+		return this->versiune;
+	}
+
+	string getProducator() {
+		return this->producator;
+	}
+
+	char* getDescriere() {
+		return this->descriere;
+	}
+
+
+	//setteri
+
+	void setTipInterfata(string tipInterfataNoua) {
+		this->tipInterfata = tipInterfataNoua;
+	}
+	void setVersiuneNoua(int versiuneNoua) {
+		this->versiune = versiuneNoua;
+	}
+	void setDescriere(const char* descriereNoua) {
+		if (this->descriere != NULL) {
+			delete[] this->descriere;
+		}
+		if (descriereNoua != NULL) {
+			this->descriere = new char[strlen(descriereNoua) + 1];
+			strcpy(this->descriere, descriereNoua);
+		}
+		else {
+			this->descriere = NULL;
+		}
+	}
+	//functie statica interfata
+	static int getTotalInterfete() {
+		return totalInterfete;
+	}
+
+	friend bool ::esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i);
+	friend float ::calculeazaIndicePerformanta(Procesor& p, RAM& r);
 };
+
+int Interfata::totalInterfete = 0;
+
+
+//functii globale
+
+float calculeazaIndicePerformanta(Procesor& p, RAM& r) {
+	float scorCPU = p.nrNuclee * p.frecventaGHz;
+	float scorRAM = r.capacitateGB * (r.frecventaMHz / 100.0f);
+}
+
+//bool esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i) {
+//	bool cpuBun = (p.nrNuclee > = 6 && p.frecventaGHz >= 3.5f);
+//}
