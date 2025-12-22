@@ -41,7 +41,7 @@ public:
         this->nrNuclee = 4;
         this->frecventaGHz = 3.0f;
 
-        this->nrTemperaturi = 0;     // IMPORTANT
+        this->nrTemperaturi = 0;     
         this->temperaturi = NULL;
 
         totalProcesoare++;
@@ -104,7 +104,7 @@ public:
     int getNrTemperaturi() { return this->nrTemperaturi; }
     float* getTemperaturi() { return this->temperaturi; }
 
-    // setteri (fara setter pentru const anLansare)
+    // setteri
     void setModel(string modelNou) { this->model = modelNou; }
     void setNrNuclee(int nrNucleeNou) { this->nrNuclee = nrNucleeNou; }
     void setFrecventaGHz(float frecventaGHzNou) { this->frecventaGHz = frecventaGHzNou; }
@@ -294,7 +294,7 @@ public:
 
     Interfata(string tipInterfata) : producator("Necunoscut") {
         this->tipInterfata = tipInterfata;
-        this->versiune = 1; // FIX: era neinitializat
+        this->versiune = 1;
 
         string text = "Interfata generica " + tipInterfata;
         this->descriere = new char[text.length() + 1];
@@ -349,7 +349,7 @@ public:
     string getProducator() { return this->producator; }
     char* getDescriere() { return this->descriere; }
 
-    // setteri (fara setter pentru const producator)
+    // setteri
     void setTipInterfata(string tipInterfataNoua) { this->tipInterfata = tipInterfataNoua; }
     void setVersiune(int versiuneNoua) { this->versiune = versiuneNoua; }
 
@@ -369,7 +369,7 @@ public:
     // statice
     static int getTotalInterfete() { return totalInterfete; }
 
-    // functie statica de procesare (utila in Faza 1/2)
+    // functie statica de procesare
     static bool suntCompatibileTip(Interfata& i1, Interfata& i2) {
         return (i1.tipInterfata == i2.tipInterfata) && (i1.versiune == i2.versiune);
     }
