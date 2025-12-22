@@ -401,7 +401,7 @@ bool esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i)
 
 
 // =======================================================================
-// TESTARE MAIN (pe atributele tale)
+// testare main
 // =======================================================================
 int main()
 {
