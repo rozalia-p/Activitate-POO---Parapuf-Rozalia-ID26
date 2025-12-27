@@ -13,9 +13,8 @@ class Interfata;
 float calculeazaIndicePerformanta(Procesor& p, RAM& r);
 bool esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i);
 
-// =======================================================================
+
 // clasa Procesor
-// =======================================================================
 class Procesor {
 private:
     string model;
@@ -95,7 +94,7 @@ public:
         }
     }
 
-    // GETTERI
+    // getteri
     string getModel() { return this->model; }
     int getNrNuclee() { return this->nrNuclee; }
     float getFrecventaGHz() { return this->frecventaGHz; }
@@ -103,7 +102,7 @@ public:
     int getNrTemperaturi() { return this->nrTemperaturi; }
     float* getTemperaturi() { return this->temperaturi; }
 
-    // SETTERI (fara setter la const)
+    // setteri
     void setModel(string modelNou) { this->model = modelNou; }
     void setNrNuclee(int nrNucleeNou) { this->nrNuclee = nrNucleeNou; }
     void setFrecventaGHz(float frecventaGHzNou) { this->frecventaGHz = frecventaGHzNou; }
@@ -237,9 +236,8 @@ public:
 int Procesor::totalProcesoare = 0;
 
 
-// =======================================================================
+
 // clasa ram
-// =======================================================================
 class RAM
 {
 private:
@@ -321,7 +319,7 @@ public:
         }
     }
 
-    // GETTERI
+    // getteri
     string getTip() { return this->tip; }
     int getCapacitateGB() { return this->capacitateGB; }
     int getFrecventaMHz() { return this->frecventaMHz; }
@@ -329,7 +327,7 @@ public:
     int getNrTimpiAcces() { return this->nrTimpiAcces; }
     float* getTimpiAcces() { return this->timpiAcces; }
 
-    // SETTERI
+    // setteri
     void setTip(string tipNou) { this->tip = tipNou; }
     void setCapacitateGB(int capacitateGBNou) { this->capacitateGB = capacitateGBNou; }
     void setFrecventaMHz(int frecventaMHzNou) { this->frecventaMHz = frecventaMHzNou; }
@@ -360,7 +358,7 @@ public:
 
  
 
-    // 1) operator= (const latentaCL NU se poate copia)
+    // 1) operator=
     RAM& operator=(const RAM& r) {
         if (this != &r) {
             if (this->timpiAcces != NULL) {
@@ -461,9 +459,8 @@ public:
 int RAM::totalModuleRAM = 0;
 
 
-// =======================================================================
+
 // clasa interfata
-// =======================================================================
 class Interfata {
 private:
     string tipInterfata; // PCIe, USB, SATA ...
@@ -535,13 +532,13 @@ public:
         }
     }
 
-    // GETTERI
+    // getteri
     string getTipInterfata() { return this->tipInterfata; }
     int getVersiune() { return this->versiune; }
     string getProducator() { return this->producator; }
     char* getDescriere() { return this->descriere; }
 
-    // SETTERI
+    // setteri
     void setTipInterfata(string tipInterfataNoua) { this->tipInterfata = tipInterfataNoua; }
     void setVersiune(int versiuneNoua) { this->versiune = versiuneNoua; }
 
@@ -560,7 +557,7 @@ public:
 
     static int getTotalInterfete() { return totalInterfete; }
 
-    // 1) operator= (const producator NU se poate copia)
+    // 1) operator= 
     Interfata& operator=(const Interfata& i) {
         if (this != &i) {
             if (this->descriere != NULL) {
@@ -582,7 +579,7 @@ public:
         return *this;
     }
 
-    // 2) operator== (compatibilitate exacta)
+    // 2) operator==
     bool operator==(const Interfata& i) const {
         return (this->tipInterfata == i.tipInterfata) && (this->versiune == i.versiune);
     }
@@ -635,9 +632,8 @@ public:
 int Interfata::totalInterfete = 0;
 
 
-// =======================================================================
+
 // functii globale
-// =======================================================================
 float calculeazaIndicePerformanta(Procesor& p, RAM& r)
 {
     float scorCPU = p.nrNuclee * p.frecventaGHz;
@@ -655,9 +651,8 @@ bool esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i)
 }
 
 
-// =======================================================================
+
 // testare main
-// =======================================================================
 int main()
 {
     cout << "=========== CREARE OBIECTE (Faza 1+2) ===========" << endl;
