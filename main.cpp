@@ -3,6 +3,7 @@
 #include<string>
 #include<fstream>
 #include<cstring>
+#include<sstream>
 using namespace std;
 
 class Procesor;
@@ -12,6 +13,9 @@ class Interfata;
 float calculeazaIndicePerformanta(Procesor& p, RAM& r);
 bool esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i);
 
+// =======================================================================
+// clasa Procesor
+// =======================================================================
 class Procesor {
 private:
     string model;
@@ -23,7 +27,6 @@ private:
     int nrTemperaturi;
 
 public:
-    // constructor implicit
     Procesor() : anLansare(0) {
         this->model = "Necunoscut";
         this->nrNuclee = 0;
@@ -35,19 +38,17 @@ public:
         totalProcesoare++;
     }
 
-    // constructor cu un parametru
     Procesor(string model) : anLansare(0) {
         this->model = model;
         this->nrNuclee = 4;
         this->frecventaGHz = 3.0f;
 
-        this->nrTemperaturi = 0;     
+        this->nrTemperaturi = 0;
         this->temperaturi = NULL;
 
         totalProcesoare++;
     }
 
-    // constructor cu toti parametrii
     Procesor(string model, int nrNuclee, float frecventaGHz, int anLansare, int nrTemperaturi, float* temperaturi)
         : anLansare(anLansare) {
         this->model = model;
@@ -68,7 +69,6 @@ public:
         totalProcesoare++;
     }
 
-    // constructor de copiere
     Procesor(const Procesor& p) : anLansare(p.anLansare) {
         this->model = p.model;
         this->nrNuclee = p.nrNuclee;
@@ -88,7 +88,6 @@ public:
         totalProcesoare++;
     }
 
-    // destructor
     ~Procesor() {
         if (this->temperaturi != NULL) {
             delete[] this->temperaturi;
@@ -96,7 +95,7 @@ public:
         }
     }
 
-    // getteri
+    // GETTERI
     string getModel() { return this->model; }
     int getNrNuclee() { return this->nrNuclee; }
     float getFrecventaGHz() { return this->frecventaGHz; }
@@ -104,7 +103,7 @@ public:
     int getNrTemperaturi() { return this->nrTemperaturi; }
     float* getTemperaturi() { return this->temperaturi; }
 
-    // setteri
+    // SETTERI (fara setter la const)
     void setModel(string modelNou) { this->model = modelNou; }
     void setNrNuclee(int nrNucleeNou) { this->nrNuclee = nrNucleeNou; }
     void setFrecventaGHz(float frecventaGHzNou) { this->frecventaGHz = frecventaGHzNou; }
@@ -126,11 +125,109 @@ public:
         }
     }
 
-    // static
     static int getTotalProcesoare() { return totalProcesoare; }
 
     static float calculeazaScorPerformanta(int nrNuclee, float frecventaGHz) {
         return nrNuclee * frecventaGHz * 100.0f;
+    }
+
+    // 1) operator= 
+    Procesor& operator=(const Procesor& p) {
+        if (this != &p) {
+            if (this->temperaturi != NULL) {
+                delete[] this->temperaturi;
+                this->temperaturi = NULL;
+            }
+
+            this->model = p.model;
+            this->nrNuclee = p.nrNuclee;
+            this->frecventaGHz = p.frecventaGHz;
+
+            this->nrTemperaturi = p.nrTemperaturi;
+            if (this->nrTemperaturi > 0 && p.temperaturi != NULL) {
+                this->temperaturi = new float[this->nrTemperaturi];
+                for (int i = 0; i < this->nrTemperaturi; i++) {
+                    this->temperaturi[i] = p.temperaturi[i];
+                }
+            }
+            else {
+                this->temperaturi = NULL;
+            }
+        }
+        return *this;
+    }
+
+    // 2) operator+ (combina doua procesoare)
+    Procesor operator+(const Procesor& p) const {
+        int anNou = 0;
+        if (this->anLansare > 0 && p.anLansare > 0) anNou = (this->anLansare < p.anLansare ? this->anLansare : p.anLansare);
+        else if (this->anLansare > 0) anNou = this->anLansare;
+        else anNou = p.anLansare;
+
+        int nrTempNou = this->nrTemperaturi + p.nrTemperaturi;
+        float* tempNou = NULL;
+
+        if (nrTempNou > 0) {
+            tempNou = new float[nrTempNou];
+            int k = 0;
+            for (int i = 0; i < this->nrTemperaturi; i++) tempNou[k++] = this->temperaturi[i];
+            for (int i = 0; i < p.nrTemperaturi; i++) tempNou[k++] = p.temperaturi[i];
+        }
+
+        Procesor rez(this->model + "+" + p.model,
+            this->nrNuclee + p.nrNuclee,
+            (this->frecventaGHz + p.frecventaGHz) / 2.0f,
+            anNou,
+            nrTempNou,
+            tempNou);
+
+        if (tempNou != NULL) delete[] tempNou;
+        return rez;
+    }
+
+    // 3) operator< (comparare dupa scor performanta)
+    bool operator<(const Procesor& p) const {
+        float s1 = calculeazaScorPerformanta(this->nrNuclee, this->frecventaGHz);
+        float s2 = calculeazaScorPerformanta(p.nrNuclee, p.frecventaGHz);
+        return s1 < s2;
+    }
+
+    // 4) operator<< (afisare)
+    friend ostream& operator<<(ostream& out, const Procesor& p) {
+        out << "Procesor{model=" << p.model
+            << ", nuclee=" << p.nrNuclee
+            << ", frecventaGHz=" << p.frecventaGHz
+            << ", anLansare=" << p.anLansare
+            << ", nrTemperaturi=" << p.nrTemperaturi
+            << "}";
+        return out;
+    }
+
+    // 5) operator>> (citire)
+    friend istream& operator>>(istream& in, Procesor& p) {
+        cout << "Model: ";
+        getline(in >> ws, p.model);
+        cout << "Nr nuclee: ";
+        in >> p.nrNuclee;
+        cout << "Frecventa GHz: ";
+        in >> p.frecventaGHz;
+
+        cout << "Nr temperaturi: ";
+        in >> p.nrTemperaturi;
+
+        if (p.temperaturi != NULL) {
+            delete[] p.temperaturi;
+            p.temperaturi = NULL;
+        }
+
+        if (p.nrTemperaturi > 0) {
+            p.temperaturi = new float[p.nrTemperaturi];
+            for (int i = 0; i < p.nrTemperaturi; i++) {
+                cout << "Temperatura[" << i << "]: ";
+                in >> p.temperaturi[i];
+            }
+        }
+        return in;
     }
 
     friend float ::calculeazaIndicePerformanta(Procesor& p, RAM& r);
@@ -141,7 +238,7 @@ int Procesor::totalProcesoare = 0;
 
 
 // =======================================================================
-// CLASA RAM
+// clasa ram
 // =======================================================================
 class RAM
 {
@@ -224,7 +321,7 @@ public:
         }
     }
 
-    // getteri
+    // GETTERI
     string getTip() { return this->tip; }
     int getCapacitateGB() { return this->capacitateGB; }
     int getFrecventaMHz() { return this->frecventaMHz; }
@@ -232,7 +329,7 @@ public:
     int getNrTimpiAcces() { return this->nrTimpiAcces; }
     float* getTimpiAcces() { return this->timpiAcces; }
 
-    // setteri
+    // SETTERI
     void setTip(string tipNou) { this->tip = tipNou; }
     void setCapacitateGB(int capacitateGBNou) { this->capacitateGB = capacitateGBNou; }
     void setFrecventaMHz(int frecventaMHzNou) { this->frecventaMHz = frecventaMHzNou; }
@@ -254,12 +351,107 @@ public:
         }
     }
 
-    // static
     static int getTotalModuleRAM() { return totalModuleRAM; }
 
     static int calculeazaLatimeBandaAprox(int frecventaMHz, int latentaCL) {
         if (latentaCL <= 0) return 0;
         return (frecventaMHz * 2) / latentaCL;
+    }
+
+ 
+
+    // 1) operator= (const latentaCL NU se poate copia)
+    RAM& operator=(const RAM& r) {
+        if (this != &r) {
+            if (this->timpiAcces != NULL) {
+                delete[] this->timpiAcces;
+                this->timpiAcces = NULL;
+            }
+
+            this->tip = r.tip;
+            this->capacitateGB = r.capacitateGB;
+            this->frecventaMHz = r.frecventaMHz;
+
+            this->nrTimpiAcces = r.nrTimpiAcces;
+            if (this->nrTimpiAcces > 0 && r.timpiAcces != NULL) {
+                this->timpiAcces = new float[this->nrTimpiAcces];
+                for (int i = 0; i < this->nrTimpiAcces; i++) {
+                    this->timpiAcces[i] = r.timpiAcces[i];
+                }
+            }
+            else {
+                this->timpiAcces = NULL;
+            }
+        }
+        return *this;
+    }
+
+    // 2) operator+ (aduna capacitatea + concateneaza timpii)
+    RAM operator+(const RAM& r) const {
+        int nrNou = this->nrTimpiAcces + r.nrTimpiAcces;
+        float* tNou = NULL;
+
+        if (nrNou > 0) {
+            tNou = new float[nrNou];
+            int k = 0;
+            for (int i = 0; i < this->nrTimpiAcces; i++) tNou[k++] = this->timpiAcces[i];
+            for (int i = 0; i < r.nrTimpiAcces; i++) tNou[k++] = r.timpiAcces[i];
+        }
+
+        // latentaCL la obiectul rezultat va fi latentaCL din stanga
+        RAM rez(this->tip + "+" + r.tip,
+            this->capacitateGB + r.capacitateGB,
+            (this->frecventaMHz > r.frecventaMHz ? this->frecventaMHz : r.frecventaMHz),
+            this->latentaCL,
+            nrNou,
+            tNou);
+
+        if (tNou != NULL) delete[] tNou;
+        return rez;
+    }
+
+    // 3) operator[] 
+    float& operator[](int index) {
+        return this->timpiAcces[index];
+    }
+
+    // 4) operator<<
+    friend ostream& operator<<(ostream& out, const RAM& r) {
+        out << "RAM{tip=" << r.tip
+            << ", capGB=" << r.capacitateGB
+            << ", frecventaMHz=" << r.frecventaMHz
+            << ", latentaCL=" << r.latentaCL
+            << ", nrTimpi=" << r.nrTimpiAcces
+            << "}";
+        return out;
+    }
+
+    // 5) operator>>
+    friend istream& operator>>(istream& in, RAM& r) {
+        cout << "Tip RAM: ";
+        getline(in >> ws, r.tip);
+        cout << "Capacitate GB: ";
+        in >> r.capacitateGB;
+        cout << "Frecventa MHz: ";
+        in >> r.frecventaMHz;
+
+        cout << "Nr timpi acces: ";
+        in >> r.nrTimpiAcces;
+
+        if (r.timpiAcces != NULL) {
+            delete[] r.timpiAcces;
+            r.timpiAcces = NULL;
+        }
+
+        if (r.nrTimpiAcces > 0) {
+            r.timpiAcces = new float[r.nrTimpiAcces];
+            for (int i = 0; i < r.nrTimpiAcces; i++) {
+                cout << "Timp[" << i << "]: ";
+                in >> r.timpiAcces[i];
+            }
+        }
+
+        return in;
     }
 
     friend float ::calculeazaIndicePerformanta(Procesor& p, RAM& r);
@@ -270,7 +462,7 @@ int RAM::totalModuleRAM = 0;
 
 
 // =======================================================================
-// CLASA INTERFATA
+// clasa interfata
 // =======================================================================
 class Interfata {
 private:
@@ -343,13 +535,13 @@ public:
         }
     }
 
-    // getteri
+    // GETTERI
     string getTipInterfata() { return this->tipInterfata; }
     int getVersiune() { return this->versiune; }
     string getProducator() { return this->producator; }
     char* getDescriere() { return this->descriere; }
 
-    // setteri
+    // SETTERI
     void setTipInterfata(string tipInterfataNoua) { this->tipInterfata = tipInterfataNoua; }
     void setVersiune(int versiuneNoua) { this->versiune = versiuneNoua; }
 
@@ -366,12 +558,75 @@ public:
         }
     }
 
-    // statice
     static int getTotalInterfete() { return totalInterfete; }
 
-    // functie statica de procesare
-    static bool suntCompatibileTip(Interfata& i1, Interfata& i2) {
-        return (i1.tipInterfata == i2.tipInterfata) && (i1.versiune == i2.versiune);
+    // 1) operator= (const producator NU se poate copia)
+    Interfata& operator=(const Interfata& i) {
+        if (this != &i) {
+            if (this->descriere != NULL) {
+                delete[] this->descriere;
+                this->descriere = NULL;
+            }
+
+            this->tipInterfata = i.tipInterfata;
+            this->versiune = i.versiune;
+
+            if (i.descriere != NULL) {
+                this->descriere = new char[strlen(i.descriere) + 1];
+                strcpy(this->descriere, i.descriere);
+            }
+            else {
+                this->descriere = NULL;
+            }
+        }
+        return *this;
+    }
+
+    // 2) operator== (compatibilitate exacta)
+    bool operator==(const Interfata& i) const {
+        return (this->tipInterfata == i.tipInterfata) && (this->versiune == i.versiune);
+    }
+
+    // 3) operator+ (concat descrieri, pastreaza tip+versiune din stanga)
+    Interfata operator+(const Interfata& i) const {
+        string descr1 = (this->descriere ? this->descriere : "");
+        string descr2 = (i.descriere ? i.descriere : "");
+        string descrNou = descr1 + " | " + descr2;
+
+        Interfata rez(this->tipInterfata, this->versiune, this->producator, descrNou.c_str());
+        return rez;
+    }
+
+    // 4) operator<<
+    friend ostream& operator<<(ostream& out, const Interfata& i) {
+        out << "Interfata{tip=" << i.tipInterfata
+            << ", versiune=" << i.versiune
+            << ", producator=" << i.producator
+            << ", descriere=" << (i.descriere ? i.descriere : "NULL")
+            << "}";
+        return out;
+    }
+
+    // 5) operator>> (producator e const => nu se poate schimba)
+    friend istream& operator>>(istream& in, Interfata& i) {
+        cout << "Tip interfata: ";
+        getline(in >> ws, i.tipInterfata);
+        cout << "Versiune: ";
+        in >> i.versiune;
+
+        // citim descriere ca linie
+        cout << "Descriere: ";
+        string d;
+        getline(in >> ws, d);
+
+        if (i.descriere != NULL) {
+            delete[] i.descriere;
+            i.descriere = NULL;
+        }
+        i.descriere = new char[d.length() + 1];
+        strcpy(i.descriere, d.c_str());
+
+        return in;
     }
 
     friend bool  ::esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i);
@@ -381,7 +636,7 @@ int Interfata::totalInterfete = 0;
 
 
 // =======================================================================
-// FUNCTII GLOBALE
+// functii globale
 // =======================================================================
 float calculeazaIndicePerformanta(Procesor& p, RAM& r)
 {
@@ -405,101 +660,106 @@ bool esteSistemDeGaming(Procesor& p, RAM& r, Interfata& i)
 // =======================================================================
 int main()
 {
-    cout << "=========== PROCESOR ===========" << endl;
-    float tempP3[] = { 45.5f, 55.0f, 60.3f };
+    cout << "=========== CREARE OBIECTE (Faza 1+2) ===========" << endl;
 
+    float tempP3[] = { 45.5f, 55.0f, 60.3f };
     Procesor p1;
     Procesor p2("Ryzen 5 5600X");
     Procesor p3("Core i7 12700K", 12, 3.6f, 2021, 3, tempP3);
 
-    cout << "p1: " << p1.getModel() << ", nuclee=" << p1.getNrNuclee()
-        << ", frecv=" << p1.getFrecventaGHz()
-        << ", an=" << p1.getAnLansare() << endl;
-
-    cout << "p2: " << p2.getModel() << ", nuclee=" << p2.getNrNuclee()
-        << ", frecv=" << p2.getFrecventaGHz()
-        << ", an=" << p2.getAnLansare() << endl;
-
-    cout << "p3: " << p3.getModel() << ", nuclee=" << p3.getNrNuclee()
-        << ", frecv=" << p3.getFrecventaGHz()
-        << ", an=" << p3.getAnLansare() << endl;
-
-    cout << "Temperaturi p3: ";
-    for (int i = 0; i < p3.getNrTemperaturi(); i++)
-    {
-        cout << p3.getTemperaturi()[i] << " ; ";
-    }
-    cout << endl;
-
-    cout << "Total procesoare create: " << Procesor::getTotalProcesoare() << endl;
-    cout << "Scor static p3: "
-        << Procesor::calculeazaScorPerformanta(p3.getNrNuclee(), p3.getFrecventaGHz())
-        << endl << endl;
-
-
-    cout << "=========== RAM ===========" << endl;
     float timpiR3[] = { 10.5f, 11.0f, 9.8f };
-
     RAM r1;
     RAM r2("DDR5");
     RAM r3("DDR4", 16, 3200, 16, 3, timpiR3);
 
-    cout << "r1: tip=" << r1.getTip() << ", cap=" << r1.getCapacitateGB()
-        << " GB, frecv=" << r1.getFrecventaMHz()
-        << " MHz, CL=" << r1.getLatentaCL() << endl;
-
-    cout << "r2: tip=" << r2.getTip() << ", cap=" << r2.getCapacitateGB()
-        << " GB, frecv=" << r2.getFrecventaMHz()
-        << " MHz, CL=" << r2.getLatentaCL() << endl;
-
-    cout << "r3: tip=" << r3.getTip() << ", cap=" << r3.getCapacitateGB()
-        << " GB, frecv=" << r3.getFrecventaMHz()
-        << " MHz, CL=" << r3.getLatentaCL() << endl;
-
-    cout << "Timpi acces r3: ";
-    for (int i = 0; i < r3.getNrTimpiAcces(); i++)
-    {
-        cout << r3.getTimpiAcces()[i] << " ; ";
-    }
-    cout << endl;
-
-    cout << "Total module RAM: " << RAM::getTotalModuleRAM() << endl;
-    cout << "Latime banda aproximativa r3: "
-        << RAM::calculeazaLatimeBandaAprox(r3.getFrecventaMHz(), r3.getLatentaCL())
-        << endl << endl;
-
-
-    cout << "=========== INTERFATA ===========" << endl;
     Interfata i1;
     Interfata i2("USB");
     Interfata i3("PCIe", 4, "Nvidia", "Slot pentru placa video");
 
-    cout << "i1: tip=" << i1.getTipInterfata()
-        << ", versiune=" << i1.getVersiune()
-        << ", producator=" << i1.getProducator()
-        << ", descriere=" << i1.getDescriere() << endl;
+    cout << p1 << endl;
+    cout << p2 << endl;
+    cout << p3 << endl;
 
-    cout << "i2: tip=" << i2.getTipInterfata()
-        << ", versiune=" << i2.getVersiune()
-        << ", producator=" << i2.getProducator()
-        << ", descriere=" << i2.getDescriere() << endl;
+    cout << r1 << endl;
+    cout << r2 << endl;
+    cout << r3 << endl;
 
-    cout << "i3: tip=" << i3.getTipInterfata()
-        << ", versiune=" << i3.getVersiune()
-        << ", producator=" << i3.getProducator()
-        << ", descriere=" << i3.getDescriere() << endl;
+    cout << i1 << endl;
+    cout << i2 << endl;
+    cout << i3 << endl;
 
-    cout << "Total interfete: " << Interfata::getTotalInterfete() << endl;
-    cout << "i1 si i3 compatibile (tip+versiune)? "
-        << (Interfata::suntCompatibileTip(i1, i3) ? "DA" : "NU") << endl << endl;
-
-
-    cout << "=========== FUNCTII PRIETENE ===========" << endl;
+    cout << "\n=========== Functii prietene===========" << endl;
     float indice = calculeazaIndicePerformanta(p3, r3);
     cout << "Indice performanta (p3 + r3): " << indice << endl;
 
     bool gaming = esteSistemDeGaming(p3, r3, i3);
     cout << "Sistem p3+r3+i3 este de gaming? " << (gaming ? "DA" : "NU") << endl;
 
+
+    cout << "\n=========== Implementare operatori ===========" << endl;
+
+    // operatori procesor
+    cout << "\n--- Procesor operatori ---" << endl;
+
+    Procesor pAssign;
+    pAssign = p2;                 // operator=
+    cout << "pAssign (=p2): " << pAssign << endl;  // operator<<
+
+    Procesor pSum = p2 + p3;      // operator+
+    cout << "pSum (p2+p3): " << pSum << endl;
+
+    cout << "p2 < p3 ? " << (p2 < p3 ? "DA" : "NU") << endl; // operator<
+
+    {
+        stringstream ss;
+        ss << "TestCPU\n8\n4.2\n2\n50.5\n52.1\n";
+        ss >> p1;                 // operator>>
+        cout << "p1 citit cu >>: " << p1 << endl;
+    }
+
+    // operatori RAM
+    cout << "\n--- RAM operatori ---" << endl;
+
+    RAM rAssign;
+    rAssign = r3;                 // operator=
+    cout << "rAssign (=r3): " << rAssign << endl; // operator<<
+
+    RAM rSum = r2 + r3;           // operator+
+    cout << "rSum (r2+r3): " << rSum << endl;
+
+    if (r3.getNrTimpiAcces() > 0) {
+        cout << "r3[0] inainte: " << r3[0] << endl; // operator[]
+        r3[0] = r3[0] + 1.0f;                        // operator[] pe LHS
+        cout << "r3[0] dupa: " << r3[0] << endl;
+    }
+
+    {
+        stringstream ss;
+        ss << "DDR4\n32\n3600\n2\n10.1\n10.2\n";
+        ss >> r1;                 // operator>>
+        cout << "r1 citit cu >>: " << r1 << endl;
+    }
+
+   
+    // interfata operatori
+    cout << "\n--- Interfata operatori ---" << endl;
+
+    Interfata iAssign;
+    iAssign = i3;                 // operator=
+    cout << "iAssign (=i3): " << iAssign << endl; // operator<<
+
+    cout << "i1 == i3 ? " << (i1 == i3 ? "DA" : "NU") << endl; // operator==
+
+    Interfata iPlus = i1 + i3;    // operator+
+    cout << "iPlus (i1+i3): " << iPlus << endl;
+
+    {
+        stringstream ss;
+        ss << "PCIe\n5\nDescriere noua citita\n";
+        ss >> i2;                 // operator>>
+        cout << "i2 citit cu >>: " << i2 << endl;
+    }
+
+    cout << "\nGata: ai apelat functia prietena + toti operatorii (12+)." << endl;
     return 0;
 }
